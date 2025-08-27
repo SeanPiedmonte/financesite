@@ -1,4 +1,5 @@
 <template>
+  <NavBar />
   <img alt="Vue logo" src="./assets/logo.png" />
   <Main msg="Personal Finance Planner" />
 </template>
@@ -6,9 +7,11 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import Main from "./components/Main.vue";
+import NavBar from "./components/NavBar.vue";
 
 @Options({
   components: {
+    NavBar,
     Main,
   },
 })
