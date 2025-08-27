@@ -1,14 +1,13 @@
 <template>
   <Disclosure as="nav" class="relative bg-gray-800" v-slot="{ open }">
-    <div class="mx-auto max-w-7x1 px-2 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
       <div class="relative flex h-16 items-center justify-between">
         <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-          <!-- Mobile Menu Button -->
+          <!-- Mobile menu button-->
           <DisclosureButton
-            class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500"
+            class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500"
           >
             <span class="absolute -inset-0.5" />
-
             <span class="sr-only">Open main menu</span>
             <Bars3Icon v-if="!open" class="block size-6" aria-hidden="true" />
             <XMarkIcon v-else class="block size-6" aria-hidden="true" />
@@ -24,7 +23,7 @@
               alt="Your Company"
             />
           </div>
-          <div class="hidden sm:m1-6 sm:block">
+          <div class="hidden sm:ml-6 sm:block">
             <div class="flex space-x-4">
               <a
                 v-for="item in navigation"
@@ -44,29 +43,31 @@
           </div>
         </div>
         <div
-          class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:m1-6 sm:pr-0"
+          class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
         >
           <button
             type="button"
-            class="relative rounded-full p-1 text-gray-400 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
+            class="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
           >
             <span class="absolute -inset-1.5" />
-            <span class="sr-only">View Notifications</span>
+            <span class="sr-only">View notifications</span>
             <BellIcon class="size-6" aria-hidden="true" />
           </button>
-          <!-- Profile Dropdown -->
+
+          <!-- Profile dropdown -->
           <Menu as="div" class="relative ml-3">
             <MenuButton
-              class="relative flex rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+              class="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
             >
               <span class="absolute -inset-1.5" />
               <span class="sr-only">Open user menu</span>
               <img
-                class="size-8 rounded-full bg-gray-800 outline outline-1 -outline-offset-1 outline-white/10"
-                src="https://images.unsplash.com/photo-1462099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                class="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                 alt=""
               />
             </MenuButton>
+
             <transition
               enter-active-class="transition ease-out duration-100"
               enter-from-class="transform opacity-0 scale-95"
@@ -76,23 +77,24 @@
               leave-to-class="transform opacity-0 scale-95"
             >
               <MenuItems
-                class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-1 outline-black/5"
+                class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5"
               >
                 <MenuItem v-slot="{ active }">
                   <a
                     href="#"
                     :class="[
-                      active ? 'bg-gray-100 outline-none' : '',
+                      active ? 'bg-gray-100 outline-hidden' : '',
                       'block px-4 py-2 text-sm text-gray-700',
                     ]"
-                    >Your Profile
+                  >
+                    Your profile
                   </a>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
                   <a
                     href="#"
                     :class="[
-                      active ? 'bg-gray-100 outline-none' : '',
+                      active ? 'bg-gray-100 outline-hidden' : '',
                       'block px-4 py-2 text-sm text-gray-700',
                     ]"
                   >
@@ -103,7 +105,7 @@
                   <a
                     href="#"
                     :class="[
-                      active ? 'bg-gray-100 outline-none' : '',
+                      active ? 'bg-gray-100 outline-hidden' : '',
                       'block px-4 py-2 text-sm text-gray-700',
                     ]"
                   >
@@ -118,7 +120,7 @@
     </div>
 
     <DisclosurePanel class="sm:hidden">
-      <div class="space-y-1 px-2 pb-3 pt-2">
+      <div class="space-y-1 px-2 pt-2 pb-3">
         <DisclosureButton
           v-for="item in navigation"
           :key="item.name"
@@ -148,8 +150,14 @@ import {
   MenuButton,
   MenuItem,
   MenuItems,
-} from '"@headlessui/vue"';
-import { Bars3Icon, BellIcon, XMarkIcon } from '"@heroicons/vue/24/outline"';
+} from "@headlessui/vue";
 
-const navigation = [">"];
+import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+
+const navigation = [
+  { name: "Dashboard", href: "#", current: true },
+  { name: "Team", href: "#", current: false },
+  { name: "Projects", href: "#", current: false },
+  { name: "Calendar", href: "#", current: false },
+];
 </script>

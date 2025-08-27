@@ -8,6 +8,7 @@
 import { Options, Vue } from "vue-class-component";
 import Main from "./components/Main.vue";
 import NavBar from "./components/NavBar.vue";
+import "@/output.css";
 
 @Options({
   components: {
