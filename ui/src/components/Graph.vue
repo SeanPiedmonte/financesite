@@ -39,7 +39,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { Chart, Responsive, Pie, Tooltip } from "vue3-charts";
-import { plByMonth } from "@/data";
+import plByMonth from "@/data/plByMonth.json";
 
 export default defineComponent({
   name: "LineChart",
