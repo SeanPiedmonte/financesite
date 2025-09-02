@@ -18,7 +18,7 @@ import Main from "./components/Main.vue";
 import NavBar from "./components/NavBar.vue";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "vue-chartjs";
-import * as chartConfig from "./chartConfig.ts";
+import * as chartConfig from "./chartConfig.json";
 import "@/output.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
