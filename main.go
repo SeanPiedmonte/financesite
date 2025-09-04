@@ -1,11 +1,12 @@
 package main
 
 import (
+    "io"
 	"log"
 	"net/http"
-	"bufio"
 	"os"
 	"fmt"
+    "encoding/csv"
 )
 
 type Transaction struct {
@@ -18,14 +19,24 @@ func process_transactions(filename string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	scanner := bufio.NewScanner(file)
-	fmt.Println("%v", scanner)
+    csv_reader := csv.NewReader(file)
+    for {
+        line, err := csv_reader.Read()
+        if err == io.EOF {
+            break
+        }
+        if err != nil {
+            fmt.Println("Error reading line:", err)
+        }
+        fmt.Println(line)
+    }
 }
 
 func main() {
 	fs := http.FileServer(http.Dir("./ui/dist"))
 	http.Handle("/", fs)
-
+    
+    process_transactions("/Users/seanpiedmonte/stmt.csv")
 	log.Println("Listening on :8080...")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
