@@ -77,6 +77,11 @@ func get_balance(filename string) float64 {
 		log.Fatal("No Balance Tag Found")
 		return 0
 	}
+	line, err = csv_reader.Read()
+	if err != nil {
+		log.Fatal()
+	}
+
 	line[balance_pos] = strings.ReplaceAll(line[balance_pos], ",", "")
 	balance, err := strconv.ParseFloat(line[balance_pos], 64)
 	if err != nil {
@@ -146,7 +151,7 @@ func main() {
     for trans, total := range trans_map {
 		fmt.Printf("Vendor: %v, Total: %v\n", trans, total)
     }
-	boa_balance := get_balance("/home/seanpiedmonte/financedocs/stmt.csv")
+	boa_balance := get_balance("/home/seanpiedmonte/financedocs/2025-09-03_Emergencyfund...8680.csv")
 	fmt.Println(boa_balance)
 	log.Println("Listening on :8080...")
 	err := http.ListenAndServe(":8080", nil)
