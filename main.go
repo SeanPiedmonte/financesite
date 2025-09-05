@@ -11,10 +11,6 @@ import (
     "strconv"
 )
 
-type Transaction struct {
-	amount int
-	desc   string
-}
 
 /*
  * name: closeFile
@@ -121,18 +117,22 @@ func process_transactions(filename string) map[string]float64 {
         if err == io.EOF {
             break
         }
+
         if err != nil {
             fmt.Println("Error reading line:", err)
         }
+
 		if i == 0 || i == 1{
 			i += 1
 			continue
 		}
+		
 		line[2] = strings.ReplaceAll(line[2], ",","")
         trans, err := strconv.ParseFloat(line[2], 64)
         if err != nil {
             trans= 0.0
         }
+
 		// Have to take the substring at 10 due to dates and transaction ids
 		// so taking the substring reduces the size of our map and easier to
 		// map transactions to their origin
@@ -143,16 +143,13 @@ func process_transactions(filename string) map[string]float64 {
     return transaction_map
 }
 
+func Upload() {
+}
+
 func main() {
 	fs := http.FileServer(http.Dir("./ui/dist"))
 	http.Handle("/", fs)
     
-    trans_map := process_transactions("/home/seanpiedmonte/financedocs/stmt.csv")
-    for trans, total := range trans_map {
-		fmt.Printf("Vendor: %v, Total: %v\n", trans, total)
-    }
-	boa_balance := get_balance("/home/seanpiedmonte/financedocs/2025-09-03_Emergencyfund...8680.csv")
-	fmt.Println(boa_balance)
 	log.Println("Listening on :8080...")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
