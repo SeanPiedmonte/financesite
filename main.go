@@ -167,7 +167,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	file, handler, err := r.FormFile("FILEKEY")
 	if err != nil {
 		fmt.Println("Error Retrieving the File")
-		log.Fatal(err)
+		fmt.Println(err)
 		return
 	}
 	defer file.Close()
@@ -178,14 +178,14 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	// Create our Temporary file
 	tempFile, err := os.CreateTemp("temp-documents", "upload-*.csv")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 	defer tempFile.Close()
 
 	// read contents into our byteArray
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	tempFile.Write(fileBytes)
@@ -198,12 +198,12 @@ func main() {
     
 	log.Println("Listening on :8080...")
 	request := "POST"
-
+	
 	switch request {
 		case "POST":
 			http.HandleFunc("/upload", Upload)
 		default:
-			fmt.Println("Invalid request")
+			fmt.Println("Invalid Request")
 	}
 
 	err := http.ListenAndServe(":8080", nil)

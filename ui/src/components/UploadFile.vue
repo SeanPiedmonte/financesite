@@ -2,7 +2,7 @@
   <div class="p-4">
     <input type="file" @change="handleFileChange" />
     <button
-      class="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+      class="mt-2 px-4 py-2 bg-blue-500 text-black rounded"
       @click="uploadFile"
       :disabled="!selectedFile"
     >
@@ -11,32 +11,23 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
-
-const selectedFile = ref(null);
-
-function handleFileChange(event) {
-  selectedFile.value = event.target.files[0];
-}
-
-async function uploadFile() {
-  if (!selectedFile.value) return;
-
-  const formData = new FormData();
-  formData.append("file", selectedFile.value);
-
-  try {
-    const res = await fetch("http://localhost:8080/upload", {
+<script>
+export default {
+  name: "upload-file",
+  data() {
+    return {
+      postId: null,
+    };
+  },
+  created() {
+    const requestOptions = {
       method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) throw new Error("Upload failed");
-    const data = await res.json();
-    console.log("Upload successful:", data);
-  } catch (err) {
-    console.error("Error uploading file:", err);
-  }
-}
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Vue POST Request Example" }),
+    };
+    fetch("localhost:8080", requestOptions)
+      .then((response) => response.json())
+      .then((data) => (this.postId = data.id));
+  },
+};
 </script>
