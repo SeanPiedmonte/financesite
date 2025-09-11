@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
     "strings"
@@ -22,7 +22,7 @@ import (
  *
  * description: Close a File
  */
-func closeFile(f *os.File) {
+func CloseFile(f *os.File) {
 	err := f.Close()
 
 	if err != nil {
@@ -43,12 +43,12 @@ func closeFile(f *os.File) {
  * 			    Used to calculate net worth. Returns a float of the balance
  *
  */
-func get_balance(filename string) float64 {
+func GetBalance(filename string) float64 {
 	file, err := os.OpenFile(filename, os.O_RDWR, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer closeFile(file)
+	defer CloseFile(file)
 
 	csv_reader := csv.NewReader(file)
 	line, err := csv_reader.Read()
@@ -99,14 +99,14 @@ func get_balance(filename string) float64 {
  *				is returned of transactions and the total positive or negative
  *				value.
  */
-func process_transactions(filename string) map[string]float64 {
+func ProcessTransactions(filename string) map[string]float64 {
     transaction_map := make(map[string]float64)
 	
 	file, err := os.OpenFile(filename, os.O_RDWR, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer closeFile(file)
+	defer CloseFile(file)
 
     csv_reader := csv.NewReader(file)
 
@@ -190,24 +190,4 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 
 	tempFile.Write(fileBytes)
 	fmt.Fprintf(w, "Successfully Uploaded File\n")
-}
-
-func main() {
-	fs := http.FileServer(http.Dir("./ui/dist"))
-	http.Handle("/", fs)
-    
-	log.Println("Listening on :8080...")
-	request := "POST"
-	
-	switch request {
-		case "POST":
-			http.HandleFunc("/upload", Upload)
-		default:
-			fmt.Println("Invalid Request")
-	}
-
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
 }
