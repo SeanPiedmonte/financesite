@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 	"fmt"
+	"io"
+	"os"
 )
 
 
@@ -30,10 +32,43 @@ func Get(w http.ResponseWriter, r *http.Request) {
  *
  * return:
  *
- * description: POST Request 
+ * description: Handles our file uploads from the client to then be processed
+ * 				and sent back to the client.
  */
 func Post(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("POST")
+	fmt.Println("Upload endpoint hit")
+
+	// Parse a max of 10 MB files.
+	r.ParseMultipartForm(10 << 20)
+
+	// Returns the first file recieved under the key 'FILEKEY'
+	// and the file header so we get the filename, HEADER, and filesize
+	file, handler, err := r.FormFile("FILEKEY")
+	if err != nil {
+		fmt.Println("Error Retrieving the File")
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+	fmt.Printf("Uploaded file: %+v\n", handler.Filename)
+	fmt.Printf("File Size: %+v\n", handler.Size)
+	fmt.Printf("MIME Header: %+v\n", handler.Header)
+
+	// Create our Temporary file
+	tempFile, err := os.CreateTemp("temp-documents", "upload-*.csv")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer tempFile.Close()
+
+	// read contents into our byteArray
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	tempFile.Write(fileBytes)
+	fmt.Fprintf(w, "Successfully Uploaded File\n")
 }
 
 /*
