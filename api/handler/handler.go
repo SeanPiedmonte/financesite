@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"financesite/main/internal/config"
+	"log"
+	"encoding/json"
 )
 
 
@@ -19,8 +22,18 @@ import (
  *
  * description: GET Request 
  */
-func Get(w http.ResponseWriter, r *http.Request) {
+func GetExpenses(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("GET")
+	var resp config.Response
+	file, err := os.ReadFile("~/financesite/data/expenses.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	json.Unmarshal(file, &resp)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(resp)
 }
 
 /*

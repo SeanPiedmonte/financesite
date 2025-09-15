@@ -12,7 +12,7 @@ func main() {
 	
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /", handler.Get)
+	mux.HandleFunc("GET /expenses", handler.GetExpenses)
 	mux.HandleFunc("POST /", handler.Post)
 	mux.HandleFunc("PUT /", handler.Put)
 	mux.HandleFunc("DELETE /", handler.Del)
