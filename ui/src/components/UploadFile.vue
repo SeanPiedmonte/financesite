@@ -25,7 +25,7 @@ export default {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: "Vue POST Request Example" }),
     };
-    fetch("localhost:8080", requestOptions)
+    fetch("http://localhost:8080/api/expenses", requestOptions)
       .then((response) => response.json())
       .then((data) => (this.postId = data.id));
   },

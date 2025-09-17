@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"financesite/main/internal/config"
-	"log"
 	"encoding/json"
 )
 
@@ -23,11 +22,11 @@ import (
  * description: GET Request 
  */
 func GetExpenses(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GET")
+	fmt.Println("GET REQUEST")
 	var resp config.Response
-	file, err := os.ReadFile("~/financesite/data/expenses.json")
+	file, err := os.ReadFile("/Users/SeanPiedmonte/financesite/data/expenses.json")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 	
 	json.Unmarshal(file, &resp)

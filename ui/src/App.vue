@@ -32,6 +32,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
     Main,
     Pie,
     UploadFile,
+    GetExpenseButton,
   },
 })
 export default class App extends Vue {

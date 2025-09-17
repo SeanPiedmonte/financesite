@@ -1,26 +1,26 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"financesite/main/api/handler"
 )
 
 func main() {
-	fs := http.FileServer(http.Dir("./ui/dist"))
-	http.Handle("/", fs)
-	
 	mux := http.NewServeMux()
+	fs := http.FileServer(http.Dir("./ui/dist"))
+    
+    mux.Handle("/", fs)
 
-	mux.HandleFunc("GET /expenses", handler.GetExpenses)
-	mux.HandleFunc("POST /", handler.Post)
-	mux.HandleFunc("PUT /", handler.Put)
-	mux.HandleFunc("DELETE /", handler.Del)
+	mux.HandleFunc("GET /api/expenses", handler.GetExpenses)
+	mux.HandleFunc("POST /api/expenses", handler.Post)
+	mux.HandleFunc("PUT /api/expenses", handler.Put)
+	mux.HandleFunc("DELETE /api/expenses", handler.Del)
 
-	log.Println("Listening on :8080...")
+	fmt.Println("Listening on :8080...")
 	
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+    err := http.ListenAndServe("localhost:8080", mux)
+    if err != nil {
+        fmt.Println(err)
+    }
 }

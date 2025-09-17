@@ -8,17 +8,17 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   data() {
     return {
       expenses: null,
-    },
+    };
   },
   methods: {
     async getExpenses() {
-      this.expenses = await axios.get("/localhost:8080/expenses");
+      const response = fetch("http://localhost:8080/api/expenses");
+      this.expenses = await response.json();
+      console.log("Requested");
     },
   },
 };
