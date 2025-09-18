@@ -22,12 +22,16 @@ export default {
   created() {
     const requestOptions = {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "multipart/form-data" },
       body: JSON.stringify({ title: "Vue POST Request Example" }),
     };
-    fetch("http://localhost:8080/api/expenses", requestOptions)
-      .then((response) => response.json())
-      .then((data) => (this.postId = data.id));
+    fetch("http://localhost:8080/api/expenses", requestOptions).then(
+      (response) => {
+        if (response.Status == 200) {
+          console.log("File Uploaded");
+        }
+      }
+    );
   },
 };
 </script>

@@ -46,10 +46,10 @@ func GetExpenses(w http.ResponseWriter, r *http.Request) {
  *
  * description: Handles our file uploads from the client to then be processed
  * 				and sent back to the client.
- */
+ */ 
 func Post(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Upload endpoint hit")
-
+    fmt.Println(r.Header)
 	// Parse a max of 10 MB files.
 	r.ParseMultipartForm(10 << 20)
 
@@ -80,6 +80,16 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tempFile.Write(fileBytes)
+    body := config.Response{}
+    body.TransType = "expense"
+    body.TransOrigin = "of"
+    body.Amount = 100
+    w.WriteHeader(http.StatusCreated)
+    bytes, err := json.Marshal(body)
+    if err != nil {
+        fmt.Println(err)
+    }
+    w.Write(bytes)
 	fmt.Fprintf(w, "Successfully Uploaded File\n")
 }
 
