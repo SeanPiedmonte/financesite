@@ -13,7 +13,7 @@ func main() {
     mux.Handle("/", fs)
 
 	mux.HandleFunc("GET /api/expenses", handler.GetExpenses)
-	mux.HandleFunc("POST /api/expenses", handler.Post)
+	mux.HandleFunc("POST /api/upload", handler.UploadFile)
 	mux.HandleFunc("PUT /api/expenses", handler.Put)
 	mux.HandleFunc("DELETE /api/expenses", handler.Del)
 

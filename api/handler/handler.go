@@ -47,9 +47,9 @@ func GetExpenses(w http.ResponseWriter, r *http.Request) {
  * description: Handles our file uploads from the client to then be processed
  * 				and sent back to the client.
  */ 
-func Post(w http.ResponseWriter, r *http.Request) {
+func UploadFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Upload endpoint hit")
-    fmt.Println(r.Header)
+
 	// Parse a max of 10 MB files.
 	r.ParseMultipartForm(10 << 20)
 
@@ -67,7 +67,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("MIME Header: %+v\n", handler.Header)
 
 	// Create our Temporary file
-	tempFile, err := os.CreateTemp("temp-documents", "upload-*.csv")
+	tempFile, err := os.CreateTemp("", handler.Filename)
 	if err != nil {
 		fmt.Println(err)
 	}
