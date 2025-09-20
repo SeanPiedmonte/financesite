@@ -28,7 +28,8 @@ export default {
         body: formData,
       });
 
-      const data = await res.json();
+      //const data = await res.json();
+      const data = await res;
       console.log("File uploaded:", data);
     },
   },

@@ -84,13 +84,13 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
     body.TransType = "expense"
     body.TransOrigin = "of"
     body.Amount = 100
+	w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusCreated)
     bytes, err := json.Marshal(body)
     if err != nil {
         fmt.Println(err)
     }
     w.Write(bytes)
-	fmt.Fprintf(w, "Successfully Uploaded File\n")
 }
 
 /*
