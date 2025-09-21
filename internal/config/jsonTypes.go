@@ -10,5 +10,5 @@ package config
 type Response struct {
 	TransType string `json:"transType"`
 	TransOrigin string `json:"transOrigin"`
-	Amount int `json:"amount"`
+	Amount float64 `json:"amount"`
 }

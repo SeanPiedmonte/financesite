@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"financesite/main/internal/config"
+	"financesite/main/internal/service"
 	"encoding/json"
 )
 
@@ -79,18 +80,23 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	tempFile.Write(fileBytes)
-    body := config.Response{}
-    body.TransType = "expense"
-    body.TransOrigin = "of"
-    body.Amount = 100
+	//tempFile.Write(fileBytes)
+	transactions := service.ProcessTransactions(fileBytes)
+	var response []config.Response	
+	for k, v := range transactions {
+		fmt.Printf("%v: %v\n", k, v)
+		if v < 0.0 {
+			response = append(response, config.Response{"Expense", k, v})
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusCreated)
-    bytes, err := json.Marshal(body)
+    body, err := json.Marshal(response)
     if err != nil {
         fmt.Println(err)
     }
-    w.Write(bytes)
+    w.Write(body)
 }
 
 /*

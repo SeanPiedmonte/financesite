@@ -1,10 +1,10 @@
 package service
 
 import (
+	"bytes"
     "strings"
     "io"
 	"log"
-	"net/http"
 	"os"
 	"fmt"
     "encoding/csv"
@@ -99,27 +99,21 @@ func GetBalance(filename string) float64 {
  *				is returned of transactions and the total positive or negative
  *				value.
  */
-func ProcessTransactions(filename string) map[string]float64 {
+func ProcessTransactions(fileBytes []byte) map[string]float64 {
     transaction_map := make(map[string]float64)
 	
-	file, err := os.OpenFile(filename, os.O_RDWR, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer CloseFile(file)
-
-    csv_reader := csv.NewReader(file)
-
+	bytesReader := bytes.NewReader(fileBytes) 
+    csv_reader := csv.NewReader(bytesReader)
+	
 
 	i := 0
     for {
         line, err := csv_reader.Read()
         if err == io.EOF {
             break
-        }
-
-        if err != nil {
+        } else if err != nil {
             fmt.Println("Error reading line:", err)
+			break
         }
 
 		if i == 0 || i == 1{
