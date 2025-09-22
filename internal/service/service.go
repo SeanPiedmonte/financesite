@@ -99,12 +99,34 @@ func GetBalance(filename string) float64 {
  *				is returned of transactions and the total positive or negative
  *				value.
  */
-func ProcessTransactions(fileBytes []byte) map[string]float64 {
+func ProcessTransactions(fileBytes []byte) (map[string]float64, error) {
     transaction_map := make(map[string]float64)
 	
 	bytesReader := bytes.NewReader(fileBytes) 
     csv_reader := csv.NewReader(bytesReader)
+	csv_reader.FieldsPerRecord = -1
 	
+	// Need to Get to the true data in the file. If this is formatted correctly
+	// then this will be unnecessary
+	j := 0
+	var cont = true
+	for {
+		fmt.Println(j)
+		line, err := csv_reader.Read()
+		if err != nil {
+			fmt.Println(err)
+		    return transaction_map, err
+		}
+		if !cont {
+			break
+		}
+		for _, val := range line {
+			if strings.Contains(strings.ToLower(val), "desc") {
+				cont = false
+			}
+		}
+		j += 1
+	}
 
 	i := 0
     for {
@@ -130,10 +152,15 @@ func ProcessTransactions(fileBytes []byte) map[string]float64 {
 		// Have to take the substring at 10 due to dates and transaction ids
 		// so taking the substring reduces the size of our map and easier to
 		// map transactions to their origin
-		vendor := line[1][0:11]
+		var vendor string
+		if len(line[1]) >= 5 {
+			vendor = line[1][0:5]
+		} else {
+			vendor = line[1]
+		}
         transaction_map[vendor] += trans
     }
 
-    return transaction_map
+    return transaction_map, nil 
 }
 

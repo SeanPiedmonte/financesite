@@ -81,8 +81,12 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//tempFile.Write(fileBytes)
-	transactions := service.ProcessTransactions(fileBytes)
-	var response []config.Response	
+	transactions, err := service.ProcessTransactions(fileBytes)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var response []config.Response
 	for k, v := range transactions {
 		fmt.Printf("%v: %v\n", k, v)
 		if v < 0.0 {
