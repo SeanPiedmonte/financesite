@@ -24,16 +24,13 @@ import (
  */
 func GetExpenses(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("GET REQUEST")
-	var resp config.Response
-	file, err := os.ReadFile("/Users/SeanPiedmonte/financesite/data/expenses.json")
+	fileData, err := os.ReadFile("/home/seanpiedmonte/financesite/data/expenses.json")
 	if err != nil {
 		fmt.Println(err)
 	}
 	
-	json.Unmarshal(file, &resp)
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(resp)
+	json.NewEncoder(w).Encode(fileData)
 }
 
 /*
@@ -48,9 +45,10 @@ func GetExpenses(w http.ResponseWriter, r *http.Request) {
  * description: Handles our file uploads from the client to then be processed
  * 				and sent back to the client.
  */ 
-func UploadFile(w http.ResponseWriter, r *http.Request) {
+func UploadExpenseFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Upload endpoint hit")
-
+	
+	fmt.Println(r.Header)
 	// Parse a max of 10 MB files.
 	r.ParseMultipartForm(10 << 20)
 
@@ -68,11 +66,11 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("MIME Header: %+v\n", handler.Header)
 
 	// Create our Temporary file
-	tempFile, err := os.CreateTemp("", handler.Filename)
+	expenseFile, err := os.Create("/home/seanpiedmonte/financesite/data/expenses.json")
 	if err != nil {
 		fmt.Println(err)
 	}
-	defer tempFile.Close()
+	defer expenseFile.Close()
 
 	// read contents into our byteArray
 	fileBytes, err := io.ReadAll(file)
@@ -85,22 +83,29 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
+	
+	
 	var response []config.Response
 	for k, v := range transactions {
-		fmt.Printf("%v: %v\n", k, v)
 		if v < 0.0 {
 			response = append(response, config.Response{"Expense", k, v})
 		}
 	}
 
+
 	w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusCreated)
-    body, err := json.Marshal(response)
+	json.NewEncoder(expenseFile).Encode(response)
+    /*data, err := json.Marshal(response)
     if err != nil {
         fmt.Println(err)
     }
-    w.Write(body)
+
+	wBytes, err := expenseFile.Write(data)
+	if err != nil {
+		fmt.Println(wBytes)
+		fmt.Println(err)
+	}*/
 }
 
 /*

@@ -111,7 +111,6 @@ func ProcessTransactions(fileBytes []byte) (map[string]float64, error) {
 	j := 0
 	var cont = true
 	for {
-		fmt.Println(j)
 		line, err := csv_reader.Read()
 		if err != nil {
 			fmt.Println(err)

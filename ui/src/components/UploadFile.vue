@@ -1,37 +1,43 @@
 <template>
-  <div class="p-4">
-    <input type="file" @change="handleFileUpload" />
-    <button
-      class="mt-2 px-4 py-2 bg-blue-500 text-black rounded"
-      @click="uploadFile"
-    >
-      UploadFile
-    </button>
+  <h2>Upload Expenses</h2>
+  <input type="file" accept=".csv" @change="uploadFile" />
+  <div v-if="loading">Uploading...</div>
+  <div v-else-if="transactions.length">
+    <h3>Transactions:</h3>
+    <ul>
+      <li v-for="(txn, idx) in transactions" :key="idx">
+        {{ txn.transType }} | {{ txn.transOrigin }} | ${{ txn.amount }}a
+      </li>
+    </ul>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return { selectedFile: null };
-  },
-  methods: {
-    handleFileUpload(event) {
-      this.selectedFile = event.target.files[0];
-    },
-    async uploadFile() {
-      const formData = new FormData();
-      formData.append("FILEKEY", this.selectedFile);
+<script setup>
+import { ref } from "vue";
 
-      const res = await fetch("http://localhost:8080/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+const transactions = ref([]);
+const loading = ref(false);
 
-      //const data = await res.json();
-      const data = await res;
-      console.log("File uploaded:", data);
-    },
-  },
-};
+async function uploadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  loading.value = true;
+
+  try {
+    const formData = new FormData();
+    formData.append("FILEKEY", file);
+    const res = await fetch("http://localhost:8080/api/uploadExpenses", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    console.log(data);
+    transactions.value = data;
+  } catch (err) {
+    console.error("Upload Failed:", err);
+  } finally {
+    loading.value = false;
+  }
+}
 </script>
