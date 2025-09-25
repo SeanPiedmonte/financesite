@@ -6,7 +6,7 @@
     <h3>Transactions:</h3>
     <ul>
       <li v-for="(txn, idx) in transactions" :key="idx">
-        {{ txn.transType }} | {{ txn.transOrigin }} | ${{ txn.amount }}a
+        {{ txn.transType }} | {{ txn.transOrigin }} | ${{ txn.amount }}
       </li>
     </ul>
   </div>
@@ -27,13 +27,18 @@ async function uploadFile(event) {
   try {
     const formData = new FormData();
     formData.append("FILEKEY", file);
-    const res = await fetch("http://localhost:8080/api/uploadExpenses", {
+    const res1 = await fetch("http://localhost:8080/api/uploadExpenses", {
       method: "POST",
       body: formData,
     });
-    const data = await res.json();
-    console.log(data);
-    transactions.value = data;
+    const res2 = await fetch("http://localhost:8080/api/expenses", {
+      method: "GET",
+    });
+    const data1 = await res1.text();
+    const data2 = await res2.json();
+    console.log(data1);
+    console.log(data2);
+    transactions.value = data2;
   } catch (err) {
     console.error("Upload Failed:", err);
   } finally {

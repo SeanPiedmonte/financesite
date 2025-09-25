@@ -1,6 +1,7 @@
 package service
 
 import (
+	"math"
 	"bytes"
     "strings"
     "io"
@@ -163,3 +164,20 @@ func ProcessTransactions(fileBytes []byte) (map[string]float64, error) {
     return transaction_map, nil 
 }
 
+/*
+ * name: RoundFloat
+ *
+ * Parameters:
+ *  val float64: Value to be truncated
+ *  places float64: Precision
+ * 
+ * return
+ *  float64: truncated value
+ *
+ * Description: 
+ *  Round a float
+ */
+func RoundFloat(val float64, places int) float64 {
+	factor := math.Pow(10, float64(places))
+	return math.Round(val*factor) / factor
+}

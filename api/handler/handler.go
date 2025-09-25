@@ -28,9 +28,9 @@ func GetExpenses(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(fileData)
+	w.Write(fileData)
 }
 
 /*
@@ -88,24 +88,14 @@ func UploadExpenseFile(w http.ResponseWriter, r *http.Request) {
 	var response []config.Response
 	for k, v := range transactions {
 		if v < 0.0 {
-			response = append(response, config.Response{"Expense", k, v})
+			val := service.RoundFloat(v, 2)
+			response = append(response, config.Response{"Expense", k, val})
 		}
 	}
 
 
-	w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(expenseFile).Encode(response)
-    /*data, err := json.Marshal(response)
-    if err != nil {
-        fmt.Println(err)
-    }
-
-	wBytes, err := expenseFile.Write(data)
-	if err != nil {
-		fmt.Println(wBytes)
-		fmt.Println(err)
-	}*/
+	w.Write([]byte("File Uploaded!"))
 }
 
 /*
