@@ -6,12 +6,12 @@
       <h2>Finance Insights</h2>
       <p>Here is for supporting text and other template</p>
     </div>
-    <UploadFile />
     <!--div class="chart">
       <UploadFile />
       <Pie :data="data" :options="options" />
     </div-->
   </div>
+  <UploadFile />
 </template>
 
 <script lang="ts">
