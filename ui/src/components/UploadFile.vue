@@ -10,14 +10,26 @@
       </li>
     </ul>
   </div>
+  <div class="chart">
+    <Pie v-if="!loading" :data="transactions" :options="options" />
+  </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
+import { Chart as ChartJS, ArcElement, ToolTip, Legend } from "chart.js";
+import { Pie } from "vue-chartjs";
+
+ChartJS.register(ArcElement, ToolTip, Legend);
 
 const transactions = ref([]);
 const loading = ref(false);
-
+const options = {
+  responsive: true,
+  plugins: {
+    legend: { position: "top" },
+  },
+};
 async function uploadFile(event) {
   const file = event.target.files[0];
   if (!file) return;

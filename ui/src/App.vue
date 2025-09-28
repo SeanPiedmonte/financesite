@@ -5,11 +5,12 @@
     <div class="info">
       <h2>Finance Insights</h2>
       <p>Here is for supporting text and other template</p>
+    </div>
+    <UploadFile />
+    <!--div class="chart">
       <UploadFile />
-    </div>
-    <div class="chart">
       <Pie :data="data" :options="options" />
-    </div>
+    </div-->
   </div>
 </template>
 
@@ -18,17 +19,17 @@ import { Options, Vue } from "vue-class-component";
 import Main from "./components/Main.vue";
 import NavBar from "./components/NavBar.vue";
 import UploadFile from "./components/UploadFile.vue";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Pie } from "vue-chartjs";
+//import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+//import { Pie } from "vue-chartjs";
 import * as chartConfig from "@/data/chartConfig.json";
 import "@/output.css";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+//ChartJS.register(ArcElement, Tooltip, Legend);
 @Options({
   components: {
     NavBar,
     Main,
-    Pie,
+    //Pie,
     UploadFile,
   },
 })
