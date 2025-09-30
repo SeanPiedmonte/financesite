@@ -1,68 +1,23 @@
-<template>
-  <NavBar />
-  <Main msg="Personal Finance Planner" />
-  <div class="container">
-    <div class="info">
-      <h2>Finance Insights</h2>
-      <p>Here is for supporting text and other template</p>
-    </div>
-    <!--div class="chart">
-      <UploadFile />
-      <Pie :data="data" :options="options" />
-    </div-->
-  </div>
-  <UploadFile />
-</template>
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import Main from "./components/Main.vue";
-import NavBar from "./components/NavBar.vue";
-import UploadFile from "./components/UploadFile.vue";
-//import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-//import { Pie } from "vue-chartjs";
-import * as chartConfig from "@/data/chartConfig.json";
-import "@/output.css";
-
-//ChartJS.register(ArcElement, Tooltip, Legend);
-@Options({
-  components: {
-    NavBar,
-    Main,
-    //Pie,
-    UploadFile,
-  },
-})
-export default class App extends Vue {
-  data() {
-    return chartConfig;
-  }
+const count = ref(0);
+const msg = "My example Message";
+const rawHTML = '<span style="color:red">this should be red.</span>'
+function increment() {
+  count.value++;
 }
+
+onMounted(() => {
+  console.log("the initial count is ${count.value}.")
+})
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<template>
+  <span>Message: {{ msg }}</span>
+  <p>Using text interpolation: {{ rawHTML }}</p>
+  <p>Using v-html directive: <span v-html="rawHTML"></span></p>
+  <button @click="increment">Count is: {{ count }}</button>
+</template>
 
-.container {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 20px;
-}
-
-.info {
-  flex: 1;
-  padding: 20px;
-  text-align: left;
-}
-
-.chart {
-  flex: 1;
-}
-</style>
+<style scoped></style>
