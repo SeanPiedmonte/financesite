@@ -1,23 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
 
-const count = ref(0);
-const msg = "My example Message";
-const rawHTML = '<span style="color:red">this should be red.</span>'
-function increment() {
-  count.value++;
+
+async function getExpenses() {
+  const url = "http://localhost:8080/api/expenses";
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.error(error.message);
+  }
 }
 
 onMounted(() => {
-  console.log("the initial count is ${count.value}.")
 })
 </script>
 
 <template>
-  <span>Message: {{ msg }}</span>
-  <p>Using text interpolation: {{ rawHTML }}</p>
-  <p>Using v-html directive: <span v-html="rawHTML"></span></p>
-  <button @click="increment">Count is: {{ count }}</button>
+  <button @click="getExpenses">Get Expenses</button>
 </template>
 
 <style scoped></style>
