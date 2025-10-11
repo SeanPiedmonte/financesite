@@ -13,7 +13,7 @@ async function getExpenses() {
     const result = await response.json();
     console.log(result);
   } catch (error) {
-    let msg = (error as Error).message;
+    const msg = (error as Error).message;
     console.log(msg);
   }
 }

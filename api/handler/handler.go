@@ -24,7 +24,7 @@ import (
  */
 func GetExpenses(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("GET REQUEST")
-	fileData, err := os.ReadFile("/home/seanpiedmonte/financesite/data/expenses.json")
+	fileData, err := os.ReadFile("/Users/seanpiedmonte/financesite/data/expenses.json")
 	if err != nil {
 		fmt.Println(err)
 	}
