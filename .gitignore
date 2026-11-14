@@ -1,1 +1,9 @@
-main
+# Go build output
+/main
+/financesite
+
+# Runtime data: linked-account state and Plaid access tokens. Never commit.
+/data/local/
+.env
+
+.DS_Store
