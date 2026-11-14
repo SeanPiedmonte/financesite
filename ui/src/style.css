@@ -1,2 +1,42 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: light dark;
+  /* Chart marks: one hue, because every chart here shows a single measure. */
+  --mark: #2a78d6;
+  --mark-quiet: #9ec5f4;
+  --track: #eeeeeb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mark: #3987e5;
+    --mark-quiet: #184f95;
+    --track: #2a2a28;
+  }
+}
+
+body {
+  @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900;
+  }
+  .label {
+    @apply text-xs font-medium tracking-wide text-stone-500 uppercase dark:text-stone-400;
+  }
+  .muted {
+    @apply text-stone-500 dark:text-stone-400;
+  }
+  .field {
+    @apply rounded-md border border-stone-300 bg-white px-2.5 py-1.5 text-sm dark:border-stone-700 dark:bg-stone-900;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-stone-700 dark:bg-stone-900 dark:hover:bg-stone-800;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+}
