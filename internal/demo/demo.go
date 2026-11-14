@@ -4,6 +4,7 @@ package demo
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 
@@ -60,7 +61,7 @@ var varied = []variable{
 	{"Downtown Cinema", "ENTERTAINMENT", 14, 36, 1, card},
 }
 
-func round2(v float64) float64 { return float64(int64(v*100+0.5)) / 100 }
+func round2(v float64) float64 { return math.Round(v*100) / 100 }
 
 // Seed fills st with six months of transactions ending today, plus accounts
 // for every group and one property.
