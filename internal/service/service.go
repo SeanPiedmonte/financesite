@@ -1,183 +1,147 @@
+// Package service holds the business logic: CSV import, spending summaries,
+// net worth, and syncing linked institutions from Plaid.
 package service
 
 import (
-	"math"
 	"bytes"
-    "strings"
-    "io"
-	"log"
-	"os"
+	"crypto/sha1"
+	"encoding/csv"
+	"encoding/hex"
+	"errors"
 	"fmt"
-    "encoding/csv"
-    "strconv"
+	"math"
+	"strconv"
+	"strings"
+	"time"
+
+	"financesite/main/internal/categories"
+	"financesite/main/internal/model"
 )
 
-
-/*
- * name: closeFile
- * 
- * parameters
- *  f *os.File: file to be closed
- *
- * return:
- *
- * description: Close a File
- */
-func CloseFile(f *os.File) {
-	err := f.Close()
-
-	if err != nil {
-		log.Fatal(err)
-    }
-}
-
-/*
- * name: get_balance
- * 
- * parameters:
- * 	account_name string: name of the account we want to attach the balance to	
- *  filename string: name of the file to be processed
- *  
- * return: float64 
- *
- * description: Get the balance from the account file being submitted.
- * 			    Used to calculate net worth. Returns a float of the balance
- *
- */
-func GetBalance(filename string) float64 {
-	file, err := os.OpenFile(filename, os.O_RDWR, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer CloseFile(file)
-
-	csv_reader := csv.NewReader(file)
-	line, err := csv_reader.Read()
-	if err != nil {
-		log.Fatal(err)
-	}
-	balance_pos := -1
-	for i, elem := range line {
-		elem = strings.ToLower(elem)
-		if strings.Contains(elem, "balance") {
-			balance_pos = i
-		} else if strings.Contains(elem, "running bal") {
-			data, err := csv_reader.ReadAll()
-			if err != nil {
-				log.Fatal(err)
-			}
-			balance, err := strconv.ParseFloat(strings.ReplaceAll(data[len(data)-1][len(data[0])-1], ",", ""), 64) 
-			return balance
-		}
-	}
-	if balance_pos == -1 {
-		log.Fatal("No Balance Tag Found")
-		return 0
-	}
-	line, err = csv_reader.Read()
-	if err != nil {
-		log.Fatal()
-	}
-
-	line[balance_pos] = strings.ReplaceAll(line[balance_pos], ",", "")
-	balance, err := strconv.ParseFloat(line[balance_pos], 64)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return balance 
-}
-
-/*
- * name: process_transactions
- *
- * parameters:
- * 	filename string: file being processed
- *
- * return: map[string]float64
- * 
- * description: Processes the transaction on either a debit or credit card
- *				account to see where money is being sent or spent. A map
- *				is returned of transactions and the total positive or negative
- *				value.
- */
-func ProcessTransactions(fileBytes []byte) (map[string]float64, error) {
-    transaction_map := make(map[string]float64)
-	
-	bytesReader := bytes.NewReader(fileBytes) 
-    csv_reader := csv.NewReader(bytesReader)
-	csv_reader.FieldsPerRecord = -1
-	
-	// Need to Get to the true data in the file. If this is formatted correctly
-	// then this will be unnecessary
-	j := 0
-	var cont = true
-	for {
-		line, err := csv_reader.Read()
-		if err != nil {
-			fmt.Println(err)
-		    return transaction_map, err
-		}
-		if !cont {
-			break
-		}
-		for _, val := range line {
-			if strings.Contains(strings.ToLower(val), "desc") {
-				cont = false
-			}
-		}
-		j += 1
-	}
-
-	i := 0
-    for {
-        line, err := csv_reader.Read()
-        if err == io.EOF {
-            break
-        } else if err != nil {
-            fmt.Println("Error reading line:", err)
-			break
-        }
-
-		if i == 0 || i == 1{
-			i += 1
-			continue
-		}
-		
-		line[2] = strings.ReplaceAll(line[2], ",","")
-        trans, err := strconv.ParseFloat(line[2], 64)
-        if err != nil {
-            trans= 0.0
-        }
-
-		// Have to take the substring at 10 due to dates and transaction ids
-		// so taking the substring reduces the size of our map and easier to
-		// map transactions to their origin
-		var vendor string
-		if len(line[1]) >= 5 {
-			vendor = line[1][0:5]
-		} else {
-			vendor = line[1]
-		}
-        transaction_map[vendor] += trans
-    }
-
-    return transaction_map, nil 
-}
-
-/*
- * name: RoundFloat
- *
- * Parameters:
- *  val float64: Value to be truncated
- *  places float64: Precision
- * 
- * return
- *  float64: truncated value
- *
- * Description: 
- *  Round a float
- */
+// RoundFloat rounds val to the given number of decimal places.
 func RoundFloat(val float64, places int) float64 {
 	factor := math.Pow(10, float64(places))
 	return math.Round(val*factor) / factor
+}
+
+func parseMoney(s string) (float64, error) {
+	s = strings.TrimSpace(s)
+	negative := strings.HasPrefix(s, "(") && strings.HasSuffix(s, ")")
+	s = strings.NewReplacer(",", "", "$", "", "(", "", ")", "").Replace(s)
+	if s == "" {
+		return 0, errors.New("empty amount")
+	}
+	v, err := strconv.ParseFloat(s, 64)
+	if negative {
+		v = -v
+	}
+	return v, err
+}
+
+var dateLayouts = []string{"2006-01-02", "01/02/2006", "1/2/2006", "01/02/06", "1/2/06", "2006/01/02"}
+
+func parseDate(s string) (string, bool) {
+	s = strings.TrimSpace(s)
+	for _, layout := range dateLayouts {
+		if t, err := time.Parse(layout, s); err == nil {
+			return t.Format("2006-01-02"), true
+		}
+	}
+	return "", false
+}
+
+// ImportCSV parses a bank or card statement export. Banks put a varying
+// number of summary lines above the table, so the header is the first row
+// with a "description" column plus an amount (or debit/credit) column.
+//
+// Statement amounts are negative for money out; they are flipped to the
+// app's convention (positive is spending).
+func ImportCSV(data []byte, accountID string) ([]model.Transaction, error) {
+	r := csv.NewReader(bytes.NewReader(data))
+	r.FieldsPerRecord = -1
+	r.LazyQuotes = true
+	rows, err := r.ReadAll()
+	if err != nil {
+		return nil, fmt.Errorf("reading CSV: %w", err)
+	}
+
+	date, desc, amount, debit, credit := -1, -1, -1, -1, -1
+	header := -1
+	for i, row := range rows {
+		date, desc, amount, debit, credit = -1, -1, -1, -1, -1
+		for j, cell := range row {
+			c := strings.ToLower(strings.TrimSpace(cell))
+			switch {
+			case strings.Contains(c, "desc") || c == "payee" || c == "name" || c == "merchant":
+				if desc == -1 {
+					desc = j
+				}
+			case strings.Contains(c, "date") && date == -1:
+				date = j
+			case c == "amount" || strings.HasPrefix(c, "amount"):
+				amount = j
+			case c == "debit" || c == "withdrawal" || c == "withdrawals":
+				debit = j
+			case c == "credit" || c == "deposit" || c == "deposits":
+				credit = j
+			}
+		}
+		if desc != -1 && (amount != -1 || debit != -1 || credit != -1) {
+			header = i
+			break
+		}
+	}
+	if header == -1 {
+		return nil, errors.New("no header row found: need a description column and an amount (or debit/credit) column")
+	}
+
+	cell := func(row []string, i int) string {
+		if i < 0 || i >= len(row) {
+			return ""
+		}
+		return strings.TrimSpace(row[i])
+	}
+
+	var out []model.Transaction
+	for n, row := range rows[header+1:] {
+		name := cell(row, desc)
+		if name == "" {
+			continue
+		}
+		var amt float64
+		if amount != -1 {
+			v, err := parseMoney(cell(row, amount))
+			if err != nil {
+				continue // balance rows, totals, blank lines
+			}
+			amt = -v
+		} else {
+			d, derr := parseMoney(cell(row, debit))
+			c, cerr := parseMoney(cell(row, credit))
+			if derr != nil && cerr != nil {
+				continue
+			}
+			amt = math.Abs(d) - math.Abs(c)
+		}
+		day, ok := parseDate(cell(row, date))
+		if !ok {
+			continue
+		}
+		// A stable ID makes re-uploading the same file a no-op. The row
+		// number keeps two identical same-day purchases apart.
+		sum := sha1.Sum([]byte(fmt.Sprintf("%s|%s|%s|%.2f|%d", accountID, day, name, amt, n)))
+		out = append(out, model.Transaction{
+			ID:             "csv_" + hex.EncodeToString(sum[:8]),
+			AccountID:      accountID,
+			Date:           day,
+			Name:           name,
+			Merchant:       name,
+			Amount:         RoundFloat(amt, 2),
+			SourceCategory: categories.Guess(name, amt),
+		})
+	}
+	if len(out) == 0 {
+		return nil, errors.New("no transactions found below the header row")
+	}
+	return out, nil
 }
